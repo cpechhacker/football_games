@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 import '/HomeWidget.dart';
+import 'VolumeControl.dart';
 
 void main() => runApp(MyApp());
-
 
 
 class MyApp extends StatelessWidget {
@@ -17,16 +17,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+
       home: StreamBuilder<BluetoothState>(
           stream: FlutterBlue.instance.state,
           initialData: BluetoothState.unknown,
           builder: (c, snapshot) {
             final state = snapshot.data;
             if (state == BluetoothState.on) {
-              return HomeWidget();
+              return HomeWidget();   // return HomeWidget();
             }
-            return HomeWidget(); // BluetoothOffScreen(state: state);
+            return HomeWidget(); // BluetoothOffScreen(state: state);  // CP: HomeWidget();
           }),
+
     );
   }
 }
