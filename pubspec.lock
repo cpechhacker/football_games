@@ -151,13 +151,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  method_call_dispatcher:
-    dependency: transitive
-    description:
-      name: method_call_dispatcher
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.0"
   path:
     dependency: transitive
     description:
@@ -200,13 +193,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
-  rx_ble:
-    dependency: "direct main"
-    description:
-      name: rx_ble
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.1"
   rxdart:
     dependency: transitive
     description:

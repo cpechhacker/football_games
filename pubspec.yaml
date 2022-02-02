@@ -38,7 +38,7 @@ dependencies:
   flutter_blue: ^0.8.0
   permission_handler:
   flutter_colorpicker: ^0.3.5
-  rx_ble: ^0.2.1
+  ## rx_ble: ^0.2.1
   syncfusion_flutter_gauges: ^18.4.43
   # stop_watch_timer: ^0.6.0
   flutter_spinbox:
