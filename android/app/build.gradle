@@ -45,11 +45,13 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.play_football"
-        minSdkVersion flutter.minSdkVersion
+
+        //minSdkVersion flutter.minSdkVersion
+        minSdkVersion 28 // cp added manually
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-		// minSdkVersion 19
+
     }
 
     buildTypes {
