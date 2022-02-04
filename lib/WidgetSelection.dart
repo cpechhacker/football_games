@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 
 import 'ZonenSpiel.dart';
 
+import 'TouchDetect.dart';
+
+
 class SelectionWidget extends StatefulWidget {
   @override
   _SelectionWidgetState createState() => _SelectionWidgetState();
@@ -88,6 +91,15 @@ class _SelectionWidgetState extends State {
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 splashColor: Colors.grey,
               ),
+
+              RaisedButton(
+                child: Text("TouchDetect"),
+                onPressed: _startTouchDetect,
+                color: Colors.white,
+                textColor: Colors.blue,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                splashColor: Colors.grey,
+              ),
             ],
           ),
         ),
@@ -138,6 +150,12 @@ class _SelectionWidgetState extends State {
   void _startZonenSpiel() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) =>SliderZonenSpiel()),
+    );
+  }
+
+  void _startTouchDetect() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) =>TouchDetect()),
     );
   }
 
