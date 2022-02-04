@@ -83,19 +83,34 @@ class _BleDeviceSelectionState extends State<BleDeviceSelectionWidget> {
     print('fetch services');
     var services = await device.discoverServices();
 
-    var uartService = services.firstWhere((service) => service.uuid.toString().toUpperCase() == BT_NUS_SERVICE_UUID,
-        orElse: () => null);
+
+    // ToDO: Define Else Event with Null -> Error
+    var uartService = services.firstWhere((service) => service.uuid.toString().toUpperCase() == BT_NUS_SERVICE_UUID);
+
+
+    //var uartService = services.firstWhere((service) => service.uuid.toString().toUpperCase() == BT_NUS_SERVICE_UUID,
+    //    orElse: () => null);
+
 
     if (uartService == null) {
       print("UART Service not found");
       return;
     }
 
+    // ToDO: Define Else (null) event
     var rxChar = uartService.characteristics
-        .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_RX_CHARACTERISTIC_UUID, orElse: () => null);
+        .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_RX_CHARACTERISTIC_UUID);
 
+    // var rxChar = uartService.characteristics
+    //     .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_RX_CHARACTERISTIC_UUID, orElse: () => null);
+
+    // ToDO: Define Else (null) event
     var txChar = uartService.characteristics
-        .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_TX_CHARACTERISTIC_UUID, orElse: () => null);
+        .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_TX_CHARACTERISTIC_UUID);
+
+    // var txChar = uartService.characteristics
+    //     .firstWhere((char) => char.uuid.toString().toUpperCase() == BT_TX_CHARACTERISTIC_UUID, orElse: () => null);
+
 
     var bleDevice = BleDevice(rxChar, txChar);
 
@@ -127,15 +142,16 @@ class _BleDeviceSelectionState extends State<BleDeviceSelectionWidget> {
       if (state != BluetoothDeviceState.connected) {
         print('not connected');
         var success = await connect(device);
-        if (!success) {
-          keyState.currentState.showSnackBar(SnackBar(
-            content: Text("Failed to Connect"),
-          ));
-          setState(() {
-            deviceIdConnecting = null;
-          });
-          return;
-        }
+        // ToDO: Define non success event
+        // if (!success) {
+        //   keyState.currentState.showSnackBar(SnackBar(
+        //     content: Text("Failed to Connect"),
+        //   ));
+        //   setState(() {
+        //     deviceIdConnecting = null;
+        //   });
+        //   return;
+        // }
       }
 
       // TODO inform user that connection to bluetooth device was successful.
@@ -159,7 +175,7 @@ class _BleDeviceSelectionState extends State<BleDeviceSelectionWidget> {
       stream: stream,
       initialData: [],
       builder: (c, snapshot) => Column(
-        children: snapshot.data.map((device) {
+        children: snapshot.data!.map((device) {  // CP ! hinzugefügt keine AHnung wieso
           var isConnecting = deviceIdConnecting == device.id.toString();
           return ListTile(
             title: Text(device.name.isEmpty ? "No name" : device.name),
