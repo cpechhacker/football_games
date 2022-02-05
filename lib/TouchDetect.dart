@@ -269,6 +269,7 @@ class _TouchDetect extends State {
 
   void _resetGame() {
     _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+    _sendBleDataToAllDevices(red: 0, green: 0, blue: 0, wait: 0);
 
     setState(() {
       eventCounter = 0;
