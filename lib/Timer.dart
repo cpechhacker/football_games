@@ -317,6 +317,8 @@ class _TimerGame extends State {
     //EventCounter = 0;
   }
 
+  // ToDo: Spiel solltejdes Mal von euem beginnen mit neuen Farben und neuer WaitingTime
+  // ToDo: Es gibt eine EventTime Zeit und eine Zeit TimeTillEvent
   void _startGame() {
     var selectedColour = _randomColor();
 
