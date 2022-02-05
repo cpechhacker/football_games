@@ -242,6 +242,8 @@ class _TimerGame extends State {
     setState(() {
       sensorData = floatList[0];
     });
+
+
   }
 
   void changeColors(List<Color> colors) {
@@ -273,8 +275,6 @@ class _TimerGame extends State {
   }
 
   void _sendBleDataToAllDevices({int red: 250, int green: 30, int blue: 50, int wait: 1}) {  // double wait: 1
-
-    print("Anzahl gefundener Devices $bleDevices.length");
 
     for (int i = 0; i < bleDevices.length; i++) {
       _sendBleDataToDevice(i, red: red, green: green, blue: blue, wait: wait); //
