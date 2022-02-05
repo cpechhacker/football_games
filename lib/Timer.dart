@@ -1,30 +1,54 @@
+/* Dieses Spiel soll Touch Events erkennen und nach Erkennung eine zufällige Farbe einer wählbaren Farben - Liste an den Microcontroller schicken.
+Dieses Event wird getrackt und gestoppt wird die Zeit zwischem ersten Event und einem (wählbaren) "maximumEvents" Event
+Verwendete Elemente:
+- Count Anzahl Ble Devices (müssen nicht unbedingt verbunden sein !?)
+- Wähle Farben: Soll mögliche Farben auswählen lassen und immer die gesendete Farbe als Hintergrundfarbe ausgeben
+- Send Color to All Devices: Sende eine zufällig ausgewählte der möglichen Farben an alle Devices
+- Wähle maximale Anzahl an Events
+- Anzahl Event Counter
+- Stoppuhr: beginnt bei Event 1 und stoppt bei Event "maximumEvents" -> CountUp Version
+- Reset: Reset Stoppuhr und Anzahl Events
+*/
+
+//ToDO: Make this code more modular / reusable widgets
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'BleDeviceSelectionWidget.dart';
 import 'dart:math';
-import 'package:flutter_spinbox/material.dart';
+
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:icon_badge/icon_badge.dart';
 
+import "dart:typed_data"; // für Darstellung von floats to bytes , ...
 
 enum GameEventType { bluetoothReceived, timer }
 
-class TouchDetect extends StatefulWidget {
+class TimerGame extends StatefulWidget {
   @override
-  _TouchDetect createState() => _TouchDetect();
+  _TimerGame createState() => _TimerGame();
 }
 
-class _TouchDetect extends State {
+class _TimerGame extends State {
 
   List<Color> currentColors = [Color.fromRGBO(255, 0, 0, 0.4)];
   Color randColor = Color.fromRGBO(255, 0, 0, 0.4);
   Random _random = Random();
 
-  int eventCounter = 0;
-  int maximumEvents = 10;
+  double _startValueEventTimer = 3;
+  double _endValueEventTimer = 10;
 
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(); // Create instance.
+  int waitingTimeInt = 10;
+  int EventCounter = 0;
+
+  double sensorData = 0;
+
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(
+    mode: StopWatchMode.countDown,
+    presetMillisecond: StopWatchTimer.getMilliSecFromSecond(0)
+  ); // Create instance.
 
   @override
   void initState() {
@@ -38,7 +62,8 @@ class _TouchDetect extends State {
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
-        title: Text('Touch Detect'),
+        title: Text('Timer Game'),
+
       ),
 
       body: Container(
@@ -48,6 +73,17 @@ class _TouchDetect extends State {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
+              IconBadge(
+                icon: Icon(Icons.account_circle_rounded),
+                itemCount: bleDevices.length,
+                badgeColor: Colors.red,
+                itemColor: Colors.white,
+                hideZero: true,
+                // onTap: () {
+                //   print('test');
+                // },
+              ),
 
               RaisedButton(
                 elevation: 3.0,
@@ -88,15 +124,49 @@ class _TouchDetect extends State {
                 onPressed: _sendRandomColourFromList, child: Text("Send Color to All Devices"),
               ),
 
-              SpinBox(
-                min: 1,
-                max: 20,
-                value: 10,
-                onChanged: (setGamesCount) => setMaxEvents(setGamesCount),
+              Text("Set Event Timer"),
+
+              SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.red[700],
+                    inactiveTrackColor: Colors.red[100],
+                    trackShape: RoundedRectSliderTrackShape(),
+                    trackHeight: 4.0,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
+                    thumbColor: Colors.redAccent,
+                    overlayColor: Colors.red.withAlpha(32),
+                    overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+                    tickMarkShape: RoundSliderTickMarkShape(),
+                    activeTickMarkColor: Colors.red[700],
+                    inactiveTickMarkColor: Colors.red[100],
+                    valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+                    valueIndicatorColor: Colors.redAccent,
+                    valueIndicatorTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child:       RangeSlider(
+                    min: 0.0,
+                    max: 40.0,
+                    activeColor: Colors.green,
+                    inactiveColor: Colors.green[100],
+                    values: RangeValues(_startValueEventTimer, _endValueEventTimer),
+                    divisions: 100,
+
+                    labels: RangeLabels(
+                      _startValueEventTimer.round().toString(),
+                      _endValueEventTimer.round().toString(),
+                    ),
+                    onChanged: (values) {
+                      setState(() {
+                        _startValueEventTimer = values.start;
+                        _endValueEventTimer = values.end;
+                      });
+                    },
+                  )
               ),
 
-              Text("Anzahl Events: $eventCounter"),
-
+              Text("Sensor Data: $sensorData"),
 
               Padding(
                 padding: const EdgeInsets.only(bottom: 0),
@@ -119,6 +189,17 @@ class _TouchDetect extends State {
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: ElevatedButton(
+                            onPressed: _startGame,
+                            child: const Text(
+                              'Start',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: ElevatedButton(
@@ -134,98 +215,6 @@ class _TouchDetect extends State {
                   },
                 ),
               ),
-
-              //SelectColours(),
-              //SendColours(),
-
-              // buildColours(context),
-              // sendColours(),
-
-              // Text('Event Time next event: $waitingTimeInt'),
-              //
-              // SliderTheme(
-              //     data: SliderTheme.of(context).copyWith(
-              //       activeTrackColor: Colors.red[700],
-              //       inactiveTrackColor: Colors.red[100],
-              //       trackShape: RoundedRectSliderTrackShape(),
-              //       trackHeight: 4.0,
-              //       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              //       thumbColor: Colors.redAccent,
-              //       overlayColor: Colors.red.withAlpha(32),
-              //       overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
-              //       tickMarkShape: RoundSliderTickMarkShape(),
-              //       activeTickMarkColor: Colors.red[700],
-              //       inactiveTickMarkColor: Colors.red[100],
-              //       valueIndicatorShape: PaddleSliderValueIndicatorShape(),
-              //       valueIndicatorColor: Colors.redAccent,
-              //       valueIndicatorTextStyle: TextStyle(
-              //         color: Colors.white,
-              //       ),
-              //     ),
-              //     child:       RangeSlider(
-              //       min: 0.0,
-              //       max: 40.0,
-              //       activeColor: Colors.green,
-              //       inactiveColor: Colors.green[100],
-              //       values: RangeValues(_startValueEventTimer, _endValueEventTimer),
-              //       divisions: 100,
-              //
-              //       labels: RangeLabels(
-              //         _startValueEventTimer.round().toString(),
-              //         _endValueEventTimer.round().toString(),
-              //       ),
-              //       onChanged: (values) {
-              //         setState(() {
-              //           _startValueEventTimer = values.start;
-              //           _endValueEventTimer = values.end;
-              //         });
-              //       },
-              //     )
-              // ),
-              //
-              // Text('Time till next event:'),
-              // SliderTheme(
-              //     data: SliderTheme.of(context).copyWith(
-              //       activeTrackColor: Colors.red[700],
-              //       inactiveTrackColor: Colors.red[100],
-              //       trackShape: RoundedRectSliderTrackShape(),
-              //       trackHeight: 4.0,
-              //       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              //       thumbColor: Colors.redAccent,
-              //       overlayColor: Colors.red.withAlpha(32),
-              //       overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
-              //       tickMarkShape: RoundSliderTickMarkShape(),
-              //       activeTickMarkColor: Colors.red[700],
-              //       inactiveTickMarkColor: Colors.red[100],
-              //       valueIndicatorShape: PaddleSliderValueIndicatorShape(),
-              //       valueIndicatorColor: Colors.redAccent,
-              //       valueIndicatorTextStyle: TextStyle(
-              //         color: Colors.white,
-              //       ),
-              //     ),
-              //     child:       RangeSlider(
-              //       min: 0.0,
-              //       max: 120.0,
-              //       activeColor: Colors.green,
-              //       inactiveColor: Colors.green[100],
-              //       values: RangeValues(_startValueTimetoEvent, _endValueTimetoEvent),
-              //       divisions: 100,
-              //
-              //       labels: RangeLabels(
-              //         _startValueTimetoEvent.round().toString(),
-              //         _endValueTimetoEvent.round().toString(),
-              //       ),
-              //       onChanged: (values) {
-              //         setState(() {
-              //           _startValueTimetoEvent = values.start;
-              //           _endValueTimetoEvent = values.end;
-              //         });
-              //       },
-              //     )
-              // ),
-
-
-
             ],
           ),
         ),
@@ -243,26 +232,16 @@ class _TouchDetect extends State {
   }
 
   void _onEvent(GameEventType type, BleDevice device, List<int> bluetoothData) {
-    print("Event detected! \n Send new colour");
-    print(bluetoothData);
+    //print("#####################");
+    //print("Sensor Data:");
+    Uint8List intBytes = Uint8List.fromList(bluetoothData.toList());
+    List<double> floatList = intBytes.buffer.asFloat32List();
+    //print(floatList);
+    //print("#####################");
 
-    eventCounter++;
-    print("Event Counter: $eventCounter");
-
-    var col_selected = _randomColor();
     setState(() {
-      randColor = col_selected;
+      sensorData = floatList[0];
     });
-
-    if(eventCounter == 1)             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-    if(eventCounter == maximumEvents) {
-      _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-    }
-
-
-    int waitingTimeInt = 10; // irgendein Wert angegeben, macht noch nichts im Python Skript Detect Colours bei FUN = colour_wheel.show_color
-    _sendBleDataToAllDevices(red: col_selected.red, green: col_selected.green, blue: col_selected.blue, wait: waitingTimeInt);
-
   }
 
   void changeColors(List<Color> colors) {
@@ -285,7 +264,6 @@ class _TouchDetect extends State {
     print("Random colour is:");
     print(randColor);
 
-    // To Do: Farbe von Button "Wähle mögliche Farbe" soll Farbe von LED anzeigen
     setState(() {
       randColor = randColor;
     });
@@ -329,21 +307,45 @@ class _TouchDetect extends State {
     }
   }
 
-  void setMaxEvents(maxEvents) {
-    maximumEvents = maxEvents;
-  }
 
   void _resetGame() {
     _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+    //_stopWatchTimer.setPresetSecondTime(waitingTimeInt);
+    //print("WaitingTime $waitingTimeInt");
+    //_sendBleDataToAllDevices(red: 0, green: 0, blue: 0, wait: 0);
 
-    setState(() {
-      eventCounter = 0;
-    });
+    //EventCounter = 0;
   }
 
+  void _startGame() {
+    var selectedColour = _randomColor();
 
+    setState(() {
+      randColor = selectedColour;
+    });
+
+    final _randomWaitingTime = new Random();
+    waitingTimeInt = _startValueEventTimer.round() + _randomWaitingTime.nextInt(_endValueEventTimer.round() - _startValueEventTimer.round());
+    print("New waiting time: $waitingTimeInt");
+
+    _stopWatchTimer.setPresetSecondTime(waitingTimeInt);
+    _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+    _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+
+    _sendBleDataToAllDevices(red: selectedColour.red, green: selectedColour.green, blue: selectedColour.blue, wait: waitingTimeInt);
+
+    // print(_stopWatchTimer.isRunning);
+    //
+    // if(_stopWatchTimer.isRunning == false) {
+    //   //_sendBleDataToAllDevices(red: 0, green: 0, blue: 0, wait: 0);
+    //   print("New game running!");
+    //   //_startGame();
+    // }
+  }
 
 }
+
+
 
 
 
