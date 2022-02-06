@@ -1,14 +1,3 @@
-/* Dieses Spiel soll Touch Events erkennen und nach Erkennung eine zufällige Farbe einer wählbaren Farben - Liste an den Microcontroller schicken.
-Dieses Event wird getrackt und gestoppt wird die Zeit zwischem ersten Event und einem (wählbaren) "maximumEvents" Event
-Verwendete Elemente:
-- Count Anzahl Ble Devices (müssen nicht unbedingt verbunden sein !?)
-- Wähle Farben: Soll mögliche Farben auswählen lassen und immer die gesendete Farbe als Hintergrundfarbe ausgeben
-- Send Color to All Devices: Sende eine zufällig ausgewählte der möglichen Farben an alle Devices
-- Wähle maximale Anzahl an Events
-- Anzahl Event Counter
-- Stoppuhr: beginnt bei Event 1 und stoppt bei Event "maximumEvents" -> CountUp Version
-- Reset: Reset Stoppuhr und Anzahl Events
-*/
 
 //ToDO: Make this code more modular / reusable widgets
 
@@ -317,7 +306,8 @@ class _TimerGame extends State {
     //EventCounter = 0;
   }
 
-  // ToDo: Spiel solltejdes Mal von euem beginnen mit neuen Farben und neuer WaitingTime
+  // ToDo: Die Zeit sollte jdes Mal von Neuem beginnen herunter zu laufen mit neuen Farben und neuer WaitingTime
+  // ToDo: WaiitingTime wird nur nach Rest korrekt gesetzt. Sonst immer alte Waiting Time
   // ToDo: Es gibt eine EventTime Zeit und eine Zeit TimeTillEvent
   void _startGame() {
     var selectedColour = _randomColor();
