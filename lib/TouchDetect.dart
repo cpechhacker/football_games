@@ -21,6 +21,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:icon_badge/icon_badge.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
 
 enum GameEventType { bluetoothReceived, timer }
 
@@ -35,16 +36,35 @@ class _TouchDetect extends State {
   Color randColor = Color.fromRGBO(255, 0, 0, 0.4);
   Random _random = Random();
 
-  int eventCounter = 0;
+  int eventCounter = -1; // starte bei -1 damit BLE initialisiert werden kann
   int maximumEvents = 10;
+
+  double currentvol = 0.5;
+  bool? checkboxValue = false;
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(); // Create instance.
 
   @override
   void initState() {
-    super.initState();
+    // super.initState();
     Future.delayed(Duration.zero, () => _initializeBleDevices());
+
+    // ToDo: Warum wird dieser Code doppelt ausgeführt, auch wenn man nur einmal Volumen Button drückt? -> führt dazu dass die Events mehrfach gezählt werden
+    // ToDo: Dieser Code sollte auch ausgeführt werden, wenn Display abgedreht ist
+    PerfectVolumeControl.stream.listen((volume) {
+      //volume button is pressed // this listener will be triggeret 3 times at one button press
+
+      if(volume != currentvol){  //only execute button type check once time
+        print("Volume changed to $currentvol!");
+        _sendRandomColourFromList();
+        print("Send colour because of Volume button!");
+
+      }
+      currentvol = 0.5;
+    });
+    super.initState();
   }
+
 
 
   @override
@@ -97,7 +117,8 @@ class _TouchDetect extends State {
                                 Color.fromRGBO(255, 136, 0, 1),
                                 Color.fromRGBO(0, 255, 255, 0.4),
                                 Color.fromRGBO(255, 255, 0, 0.4),
-                                Color.fromRGBO(255, 0, 255, 0.4)
+                                Color.fromRGBO(255, 0, 255, 0.4),
+                                Color.fromRGBO(155, 103, 60, 0.4),
                               ]),
                         ),
                       );
@@ -112,6 +133,17 @@ class _TouchDetect extends State {
 
               ElevatedButton(
                 onPressed: _sendRandomColourFromList, child: Text("Send Color to All Devices"),
+              ),
+
+              CheckboxListTile(
+                title: Text("Betrachte Button - Press als Event!"),
+                value: checkboxValue,
+                onChanged: (newValue) {
+                  setState(() {
+                    checkboxValue = newValue;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
               ),
 
               Text("Wähle maximale Anzahl an Events"),
@@ -177,6 +209,7 @@ class _TouchDetect extends State {
             (device) => device.tx.value.listen((value) => _onEvent(GameEventType.bluetoothReceived, device, value)));
   }
 
+  // ToDo: Bereits wenn ich diesen Screen aufmache, wird _onEvent aufgerufen und die Stoppuhr gesetzt. Warum? wegen _initializeBleDevices ?
   void _onEvent(GameEventType type, BleDevice device, List<int> bluetoothData) {
     print("Event detected! \n Send new colour");
     print(bluetoothData);
@@ -208,6 +241,13 @@ class _TouchDetect extends State {
   void _sendRandomColourFromList({Color? color, int waitingTimeInt: 1}) {
     Color color = _randomColor();
 
+    if(checkboxValue == true) {
+      eventCounter++;
+      if(eventCounter == 1)             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+      if(eventCounter == maximumEvents) {
+        _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+      }
+    }
     _sendBleDataToAllDevices(red: color.red, green: color.green, blue: color.blue, wait: waitingTimeInt);
   }
 
@@ -223,7 +263,6 @@ class _TouchDetect extends State {
     setState(() {
       randColor = randColor;
     });
-
 
     return randColor;
   }
