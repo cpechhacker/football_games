@@ -1,3 +1,6 @@
+/*Dieses Spiel soll Touch Events erkennen und die Events zählen. Für jedes Event steht nur ein begrenzter Countdown zur Verfügung.
+ToDo: Dieser Countdown sollte variable sein.
+* */
 
 //ToDO: Make this code more modular / reusable widgets
 
