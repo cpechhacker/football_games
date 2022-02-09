@@ -1,6 +1,7 @@
 
 //ToDO: Make this code more modular / reusable widgets
 
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'BleDeviceSelectionWidget.dart';
@@ -306,7 +307,7 @@ class _TimerGame extends State {
     //EventCounter = 0;
   }
 
-  // ToDo: Die Zeit sollte jdes Mal von Neuem beginnen herunter zu laufen mit neuen Farben und neuer WaitingTime
+  // ToDo: Die Zeit sollte jdes Mal von Neuem beginnen herunter zu laufen mit neuen Farben und neuer WaitingTime (https://stackoverflow.com/questions/68420172/how-to-use-dynamic-interval-time-in-stream-periodic-event-in-flutter)
   // ToDo: WaiitingTime wird nur nach Rest korrekt gesetzt. Sonst immer alte Waiting Time
   // ToDo: Es gibt eine EventTime Zeit und eine Zeit TimeTillEvent
   void _startGame() {
@@ -315,6 +316,25 @@ class _TimerGame extends State {
     setState(() {
       randColor = selectedColour;
     });
+
+    // Einbauen:
+    // class AdjustablePeriodStream {
+    // Duration period;  // lower upper
+    // AdjustablePeriodStream(this.period);
+    //
+    // Stream<void> start() async* {
+    // while (true) {  //
+    // yield null;
+    // print('Waiting for $period'); // jdes Mal neue Period ausrechnen aus SliderInterval
+    // await Future.delayed(period);
+    // }
+    // }
+    // }
+
+    //x.start().take(5).listen((_) {
+    //  print('event!');
+    //  x.period = (x.period == ten ? twenty : ten);
+    //});
 
     final _randomWaitingTime = new Random();
     waitingTimeInt = _startValueEventTimer.round() + _randomWaitingTime.nextInt(_endValueEventTimer.round() - _startValueEventTimer.round());
