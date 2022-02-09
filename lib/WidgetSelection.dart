@@ -12,8 +12,10 @@ import 'package:flutter/material.dart';
 import 'ZonenSpiel.dart';
 
 import 'TouchDetect.dart';
+import 'TouchDetectCountdown.dart';
 import 'Timer.dart';
 import "Stopwatch.dart";
+
 
 class SelectionWidget extends StatefulWidget {
   @override
@@ -102,6 +104,15 @@ class _SelectionWidgetState extends State {
                 splashColor: Colors.grey,
               ),
               RaisedButton(
+                child: Text("TouchDetect Countdown"),
+                onPressed: _startTouchDetectCountdown,
+                color: Colors.white,
+                textColor: Colors.blue,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                splashColor: Colors.grey,
+              ),
+
+              RaisedButton(
                 child: Text("Timer Game"),
                 onPressed: _startTimerGame,
                 color: Colors.white,
@@ -165,6 +176,12 @@ class _SelectionWidgetState extends State {
   void _startTouchDetect() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) =>TouchDetect()),
+    );
+  }
+
+  void _startTouchDetectCountdown() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) =>TouchDetectCountdown()),
     );
   }
 
