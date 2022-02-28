@@ -229,11 +229,17 @@ class _TimerGame extends State {
     //print(floatList);
     //print("#####################");
 
+
+    if (bluetoothData[0] == 1 && EventCounter > 0) {
+      print("Event ended! Select new colour and play again");
+      _startGame();
+    }
+
+
     setState(() {
-      sensorData = floatList[0];
+      //sensorData = floatList[0];
     });
-
-
+    EventCounter++;
   }
 
   void changeColors(List<Color> colors) {
@@ -299,12 +305,12 @@ class _TimerGame extends State {
 
 
   void _resetGame() {
+    _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-    //_stopWatchTimer.setPresetSecondTime(waitingTimeInt);
-    //print("WaitingTime $waitingTimeInt");
-    //_sendBleDataToAllDevices(red: 0, green: 0, blue: 0, wait: 0);
+    _stopWatchTimer.setPresetSecondTime(waitingTimeInt);
+    _sendBleDataToAllDevices(red: 0, green: 0, blue: 0, wait: 0);
 
-    //EventCounter = 0;
+    EventCounter = 0;
   }
 
   // ToDo: Die Zeit sollte jdes Mal von Neuem beginnen herunter zu laufen mit neuen Farben und neuer WaitingTime (https://stackoverflow.com/questions/68420172/how-to-use-dynamic-interval-time-in-stream-periodic-event-in-flutter)
