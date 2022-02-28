@@ -42,6 +42,8 @@ class _TouchDetect extends State {
   double currentvol = 0.5;
   bool? checkboxValue = false;
 
+  int esp_now_devices = 0;
+
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(); // Create instance.
 
   @override
@@ -83,7 +85,16 @@ class _TouchDetect extends State {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
+              IconBadge(
+                icon: Icon(Icons.account_circle_rounded),
+                itemCount: esp_now_devices,
+                badgeColor: Colors.red,
+                itemColor: Colors.white,
+                hideZero: true,
+                // onTap: () {
+                //   print('test');
+                // },
+              ),
               IconBadge(
                 icon: Icon(Icons.account_circle_rounded),
                 itemCount: bleDevices.length,
@@ -220,6 +231,7 @@ class _TouchDetect extends State {
     var col_selected = _randomColor();
     setState(() {
       randColor = col_selected;
+      esp_now_devices = bluetoothData[1];
     });
 
     if(eventCounter == 1)             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
@@ -231,6 +243,9 @@ class _TouchDetect extends State {
     int waitingTimeInt = 10; // irgendein Wert angegeben, macht noch nichts im Python Skript Detect Colours bei FUN = colour_wheel.show_color
     _sendBleDataToAllDevices(red: col_selected.red, green: col_selected.green, blue: col_selected.blue, wait: waitingTimeInt);
 
+    // _sendBleDataToAllDevices(red: col_selected.red, green: col_selected.green, blue: col_selected.blue, wait: waitingTimeInt);
+
+    _sendBleDataToDevice(0, red: col_selected.red, green: col_selected.green, blue: col_selected.blue, wait: waitingTimeInt, DeviceNr: 0);
   }
 
   void changeColors(List<Color> colors) {
@@ -269,10 +284,11 @@ class _TouchDetect extends State {
 
   void _sendBleDataToAllDevices({int red: 250, int green: 30, int blue: 50, int wait: 1}) {  // double wait: 1
 
-    print("Anzahl gefundener Devices $bleDevices.length");
+    //print("Anzahl gefundener Devices $bleDevices.length");
+    print("CP");
 
     for (int i = 0; i < bleDevices.length; i++) {
-      _sendBleDataToDevice(i, red: red, green: green, blue: blue, wait: wait); //
+      _sendBleDataToDevice(i, red: red, green: green, blue: blue, wait: wait, DeviceNr: 0); //
     }
 
 
@@ -282,10 +298,11 @@ class _TouchDetect extends State {
     // });
   }
 
-// Todo let waiting time be a double -> problems with device.rx.write
-  void _sendBleDataToDevice(int deviceNumber, {int red: 250, int green: 30, int blue: 50, int wait: 1}) {
+  // Todo let waiting time be a double -> problems with device.rx.write
+  // ToDo: DeviceNr should be a list, so that more than one receiver of the receiver can be accessed
+  void _sendBleDataToDevice(int deviceNumber, {int red: 250, int green: 30, int blue: 50, int wait: 1, int DeviceNr: 0}) {
 
-    var data = [red, green, blue, wait];
+    var data = [red, green, blue, wait, DeviceNr];
     print("Send Following Information:");
     print(data);
 
