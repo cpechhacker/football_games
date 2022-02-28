@@ -14,6 +14,10 @@ import 'ZonenSpiel.dart';
 import 'TouchDetect.dart';
 import 'TouchDetectCountdown.dart';
 import 'Timer.dart';
+import 'NFCReadWrite.dart';
+import 'BallHaltenStoppuhr.dart';
+import 'BleListen.dart';
+
 import "Stopwatch.dart";
 
 
@@ -120,6 +124,30 @@ class _SelectionWidgetState extends State {
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 splashColor: Colors.grey,
               ),
+              RaisedButton(
+                child: Text("Ball halten Stoppuhr!"),
+                onPressed: _startBallHalten,
+                color: Colors.white,
+                textColor: Colors.blue,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                splashColor: Colors.grey,
+              ),
+              RaisedButton(
+                child: Text("NFC"),
+                onPressed: _startNFCReadWrite,
+                color: Colors.white,
+                textColor: Colors.blue,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                splashColor: Colors.grey,
+              ),
+              RaisedButton(
+                child: Text("Ble Listen"),
+                onPressed: _startBleListen,
+                color: Colors.white,
+                textColor: Colors.blue,
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                splashColor: Colors.grey,
+              ),
             ],
           ),
         ),
@@ -190,6 +218,25 @@ class _SelectionWidgetState extends State {
       MaterialPageRoute(builder: (context) => TimerGame()),   // CountDownTimerPage() oder TimerGame()
     );
   }
+
+  void _startBallHalten() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => BallHalten()),
+    );
+  }
+
+  void _startNFCReadWrite() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => NFCReadWrite()),
+    );
+  }
+
+  void _startBleListen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => BleListen()),
+    );
+  }
+
 
 
 }
