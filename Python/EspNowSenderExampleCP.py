@@ -11,8 +11,12 @@ w0.config('mac') ## my mac adress
 e = espnow.ESPNow()
 e.init()
 
-peer = b'0\xae\xa4\xd3\xa3\xe8'  # MAC address of peer's wifi interface
-e.add_peer(peer)
+peer_list = [b'X\xbf%\x9d\x8c\x94', b'0\xae\xa4\xd3\xa3\xe8']
+for peer in peer_list:
+    e.add_peer(peer)
+
+#peer = b'0\xae\xa4\xd3\xa3\xe8'  # MAC address of peer's wifi interface
+#e.add_peer(peer)
 
 e.send("Starting...")       # Send to all peers
 for i in range(100):
